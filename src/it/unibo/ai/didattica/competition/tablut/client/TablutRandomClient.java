@@ -128,8 +128,11 @@ public class TablutRandomClient extends TablutClient {
 			}
 
 			if (this.getPlayer().equals(Turn.WHITE)) {
-				// è il mio turno
+				// QUESTA E' LA PARTE DA MODIFICARE
 				if (this.getCurrentState().getTurn().equals(StateTablut.Turn.WHITE)) {
+					
+					// CREO UN ARRAY CHE RAPPRESENTA LO STATO DELLA TAVOLA
+					// PAWNS SONO LE CASELLE OCCUPATE, EMPTY QUELLE LIBERE
 					int[] buf;
 					for (int i = 0; i < state.getBoard().length; i++) {
 						for (int j = 0; j < state.getBoard().length; j++) {
@@ -149,8 +152,9 @@ public class TablutRandomClient extends TablutClient {
 					}
 
 					int[] selected = null;
-
 					boolean found = false;
+					
+					// INIZIALIZZO UNA NUOVA AZIONE CHE VERRA' POI MODIFICATA
 					Action a = null;
 					try {
 						a = new Action("z0", "z0", State.Turn.WHITE);
@@ -158,7 +162,11 @@ public class TablutRandomClient extends TablutClient {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+					
+					
+					
 					while (!found) {
+						// SCEGLIE CASUALMENTE UNA CASELLA OCCUPATA
 						if (pawns.size() > 1) {
 							selected = pawns.get(new Random().nextInt(pawns.size() - 1));
 						} else {
@@ -166,10 +174,12 @@ public class TablutRandomClient extends TablutClient {
 						}
 
 						String from = this.getCurrentState().getBox(selected[0], selected[1]);
-
+						
+						// SCEGLIE CASUALMENTE UNA CASELLA LIBERA
 						selected = empty.get(new Random().nextInt(empty.size() - 1));
 						String to = this.getCurrentState().getBox(selected[0], selected[1]);
 
+						// CREA L'AZIONE CON LE CASELLE SCELTE
 						try {
 							a = new Action(from, to, State.Turn.WHITE);
 						} catch (IOException e1) {
@@ -177,6 +187,7 @@ public class TablutRandomClient extends TablutClient {
 							e1.printStackTrace();
 						}
 
+						// SE LA MOSSA E' APPLICABILE SI ESCE DAL CICLO
 						try {
 							rules.checkMove(state, a);
 							found = true;
@@ -186,6 +197,8 @@ public class TablutRandomClient extends TablutClient {
 
 					}
 
+					// SI ESEGUE LA MOSSA E SI RESETTANO I VETTORI
+					
 					System.out.println("Mossa scelta: " + a.toString());
 					try {
 						this.write(a);
@@ -219,9 +232,11 @@ public class TablutRandomClient extends TablutClient {
 
 			} else {
 
-				// è il mio turno
+				// QUESTA E' LA PARTE DA MODIFICARE
 				if (this.getCurrentState().getTurn().equals(StateTablut.Turn.BLACK)) {
 					int[] buf;
+					// CREO UN ARRAY CHE RAPPRESENTA LO STATO DELLA TAVOLA
+					// PAWNS SONO LE CASELLE OCCUPATE, EMPTY QUELLE LIBERE
 					for (int i = 0; i < state.getBoard().length; i++) {
 						for (int j = 0; j < state.getBoard().length; j++) {
 							if (state.getPawn(i, j).equalsPawn(State.Pawn.BLACK.toString())) {
@@ -241,6 +256,9 @@ public class TablutRandomClient extends TablutClient {
 					int[] selected = null;
 
 					boolean found = false;
+					
+					// INIZIALIZZO UNA NUOVA AZIONE CHE VERRA' POI MODIFICATA
+					
 					Action a = null;
 					try {
 						a = new Action("z0", "z0", State.Turn.BLACK);
@@ -248,14 +266,17 @@ public class TablutRandomClient extends TablutClient {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					;
+					
 					while (!found) {
+						// SCEGLIE CASUALMENTE UNA CASELLA OCCUPATA
 						selected = pawns.get(new Random().nextInt(pawns.size() - 1));
 						String from = this.getCurrentState().getBox(selected[0], selected[1]);
-
+						
+						// SCEGLIE CASUALMENTE UNA CASELLA LIBERA
 						selected = empty.get(new Random().nextInt(empty.size() - 1));
 						String to = this.getCurrentState().getBox(selected[0], selected[1]);
 
+						// CREA L'AZIONE CON LE CASELLE SCELTE
 						try {
 							a = new Action(from, to, State.Turn.BLACK);
 						} catch (IOException e1) {
@@ -263,6 +284,7 @@ public class TablutRandomClient extends TablutClient {
 							e1.printStackTrace();
 						}
 
+						// SE LA MOSSA E' APPLICABILE SI ESCE DAL CICLO
 						System.out.println("try: " + a.toString());
 						try {
 							rules.checkMove(state, a);
@@ -272,7 +294,8 @@ public class TablutRandomClient extends TablutClient {
 						}
 
 					}
-
+					
+					// SI ESEGUE LA MOSSA E SI RESETTANO I VETTORI
 					System.out.println("Mossa scelta: " + a.toString());
 					try {
 						this.write(a);
