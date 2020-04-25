@@ -1,0 +1,14 @@
+package player;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+public class ChesaniWhitePlayer {
+
+	public static void main(String[] args) throws UnknownHostException, ClassNotFoundException, IOException {
+		String[] array = new String[]{"WHITE"};
+		ChesaniPlayer.main(array);
+
+	}
+
+}
