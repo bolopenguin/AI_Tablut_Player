@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import domain.State.Pawn;
 import domain.State.Turn;
 import exceptions.*;
 import strategy.*;
@@ -28,42 +26,11 @@ import strategy.*;
  *
  */
 public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversarial.Game<State, Action, State.Turn> {
-	
-	/**
-	* Current time for timeout
-	*/
-	private LocalTime currentTime;
-	
-	/**
-	* Max depth for tree-search  
-	*/
-	private int maxDepth;
-
-	/**
-	* Current depth in the tree  
-	*/
-	private int currentDepth;
-	
-	/**
-	* Max time for timeout
-	*/
-	private int maxTimeInSeconds;
-	
-	/**
-	* Current turn to calculate the current depth
-	*/
-	private Turn currentTurn;
-
-	/**
-	* Useful variable  to calculate the current depth
-	*/
-	private int numberOfConsecutiveEqualsTurn;
 	/**
 	 * Number of repeated states that can occur before a draw
 	 */
 	private int repeated_moves_allowed;
 
-	
 	/**
 	 * Number of states kept in memory. negative value means infinite.
 	 */
@@ -81,22 +48,10 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 	private List<State> drawConditions;
 
 	
-	public void setCurrentTurn(Turn currentTurn) {
-		this.currentTurn = currentTurn;
-	}
-	public void setCurrentDepth(int currentDepth) {
-		this.currentDepth = currentDepth;
-		System.out.println(this.currentDepth);
-
-	}
-	
 	public ChesaniGameAshtonTablut(int repeated_moves_allowed, int cache_size, String logs_folder, String whiteName,
-			String blackName, int maxTimeInSeconds, int maxDepth) {
+			String blackName) {
 		this(new StateTablut(), repeated_moves_allowed, cache_size, logs_folder, whiteName, blackName);
-		
-		this.maxTimeInSeconds = maxTimeInSeconds;
-		this.maxDepth = maxDepth;
-		this.currentTime = LocalTime.now();
+
 	}
 
 	private ChesaniGameAshtonTablut(State state, int repeated_moves_allowed, int cache_size, String logs_folder,
@@ -155,8 +110,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		// this.strangeCitadels.add("a5");
 		// this.strangeCitadels.add("i5");
 		// this.strangeCitadels.add("e9");
-		
-		numberOfConsecutiveEqualsTurn=0;
 	}
 	
 	@Override
@@ -336,15 +289,9 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		int trovati = 0;
 		for (State s : drawConditions) {
 
-			System.out.println(s.toString());
+			//System.out.println(s.toString());
 
 			if (s.equals(state)) {
-				// DEBUG: //
-				// System.out.println("UGUALI:");
-				// System.out.println("STATO VECCHIO:\t" + s.toLinearString());
-				// System.out.println("STATO NUOVO:\t" +
-				// state.toLinearString());
-
 				trovati++;
 				if (trovati > repeated_moves_allowed) {
 					state.setTurn(State.Turn.DRAW);
@@ -352,11 +299,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 					break;
 				}
 			} else {
-				// DEBUG: //
-				// System.out.println("DIVERSI:");
-				// System.out.println("STATO VECCHIO:\t" + s.toLinearString());
-				// System.out.println("STATO NUOVO:\t" +
-				// state.toLinearString());
 			}
 		}
 		if (trovati > 0) {
@@ -370,7 +312,7 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		this.loggGame.fine("Current draw cache size: " + this.drawConditions.size());
 
 		this.loggGame.fine("Stato:\n" + state.toString());
-		System.out.println("Stato:\n" + state.toString());
+		//System.out.println("Stato:\n" + state.toString());
 
 		return state;
 	}
@@ -554,7 +496,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		// ho il re sotto
 		if (a.getRowTo() < state.getBoard().length - 2
 				&& state.getPawn(a.getRowTo() + 1, a.getColumnTo()).equalsPawn("K")) {
-			System.out.println("Ho il re sotto");
 			// re sul trono
 			if (state.getBox(a.getRowTo() + 1, a.getColumnTo()).equals("e5")) {
 				if (state.getPawn(5, 4).equalsPawn("B") && state.getPawn(4, 5).equalsPawn("B")
@@ -799,219 +740,228 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 
 	@Override
 	public List<Action> getActions(State arg0) {
-		StateTablut currentState = null;
-		List<Action> result = new ArrayList<Action>();
-		if(!(arg0 instanceof StateTablut))
-			throw new IllegalArgumentException();
-		currentState = (StateTablut) arg0;
-		Pawn[][] board = currentState.getBoard();
-		for(int i=0 ; i<9; i++) {
-			for(int j=0; j<9; j++) {
-				// WHITE TURN
-				if(currentState.getTurn().equals(Turn.WHITE)) {
-					if(board[i][j].equals(Pawn.KING) || board[i][j].equals(Pawn.WHITE)) {
-						result.addAll(this.selectAllActionsForThisPawn(currentState.clone(), i, j));
+		return myGetActions(arg0);
+	}
+	
+	
+	public int myCheckMove(int columnFrom, int columnTo, int rowFrom, int rowTo, int ctrl, State state) {
+
+		if (columnFrom > state.getBoard().length - 1 || rowFrom > state.getBoard().length - 1
+				|| rowTo > state.getBoard().length - 1 || columnTo > state.getBoard().length - 1 || columnFrom < 0
+				|| rowFrom < 0 || rowTo < 0 || columnTo < 0)
+			ctrl = 1;
+
+		// controllo che non vada sul trono
+		if (state.getPawn(rowTo, columnTo).equalsPawn(State.Pawn.THRONE.toString()))
+			ctrl = 1;
+
+		// controllo la casella di arrivo
+		if (!state.getPawn(rowTo, columnTo).equalsPawn(State.Pawn.EMPTY.toString()))
+			ctrl = 1;
+
+		if (this.citadels.contains(state.getBox(rowTo, columnTo))
+				&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
+			ctrl = 1;
+
+		if (this.citadels.contains(state.getBox(rowTo, columnTo))
+				&& this.citadels.contains(state.getBox(rowFrom, columnFrom))) {
+			if (rowFrom == rowTo) {
+				if (columnFrom - columnTo > 5 || columnFrom - columnTo < -5)
+					ctrl = 1;
+			} else {
+				if (rowFrom - rowTo > 5 || rowFrom - rowTo < -5)
+					ctrl = 1;
+			}
+		}
+
+		// controllo se cerco di stare fermo
+		if (rowFrom == rowTo && columnFrom == columnTo)
+			ctrl = 1;
+
+		// controllo se sto muovendo una pedina giusta
+		if (state.getTurn().equalsTurn(State.Turn.WHITE.toString())) {
+			if (!state.getPawn(rowFrom, columnFrom).equalsPawn("W")
+					&& !state.getPawn(rowFrom, columnFrom).equalsPawn("K"))
+				ctrl = 1;
+		}
+
+		if (state.getTurn().equalsTurn(State.Turn.BLACK.toString())) {
+			if (!state.getPawn(rowFrom, columnFrom).equalsPawn("B"))
+				ctrl = 1;
+		}
+
+		// controllo di non scavalcare pedine
+		if (rowFrom == rowTo) {
+			if (columnFrom > columnTo) {
+				for (int i = columnTo; i < columnFrom; i++) {
+					if (!state.getPawn(rowFrom, i).equalsPawn(State.Pawn.EMPTY.toString()))
+						ctrl = 1;
+					if (this.citadels.contains(state.getBox(rowFrom, i))
+							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
+						ctrl = 1;
+				}
+			} else {
+				for (int i = columnFrom + 1; i <= columnTo; i++) {
+					if (!state.getPawn(rowFrom, i).equalsPawn(State.Pawn.EMPTY.toString()))
+						ctrl = 1;
+					if (this.citadels.contains(state.getBox(rowFrom, i))
+							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
+						ctrl = 1;
+				}
+			}
+		} else {
+			if (rowFrom > rowTo) {
+				for (int i = rowTo; i < rowFrom; i++) {
+					if (!state.getPawn(i, columnFrom).equalsPawn(State.Pawn.EMPTY.toString()))
+						ctrl = 1;
+					if (this.citadels.contains(state.getBox(i, columnFrom))
+							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
+						ctrl = 1;
+				}
+			} else {
+				for (int i = rowFrom + 1; i <= rowTo; i++) {
+					if (!state.getPawn(i, columnFrom).equalsPawn(State.Pawn.EMPTY.toString()))
+						ctrl = 1;
+					if (this.citadels.contains(state.getBox(i, columnFrom))
+							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom))) {
+						ctrl = 1;
 					}
 				}
-				else if(currentState.getTurn().equals(Turn.BLACK))// BLACK TURN - ALTRI TURNI NON VERRANNO MAI CHIAMATI -> GUARDA CLIENT
-				{
-					if(board[i][j].equals(Pawn.BLACK)) {
-						result.addAll(this.selectAllActionsForThisPawn(currentState.clone(), i, j));
-					}
+			}
+		}
+		return ctrl;
+	}
+
+
+
+	private List<Action> myGetActions(State state) {
+		List<int[]> white = new ArrayList<int[]>(); // tengo traccia della posizione nello stato dei bianchi
+		List<int[]> black = new ArrayList<int[]>(); // uguale per i neri
+
+		int[] buf; // mi indica la posizione ex."z6"
+
+		for (int i = 0; i < state.getBoard().length; i++) {
+			for (int j = 0; j < state.getBoard().length; j++) {
+				if (state.getPawn(i, j).equalsPawn("W") || state.getPawn(i, j).equalsPawn("K")) {
+					buf = new int[2];
+					buf[0] = i;
+					// System.out.println( "riga: " + buf[0] + " ");
+					buf[1] = j;
+					// System.out.println( "colonna: " + buf[1] + " \n");
+					white.add(buf);
+				} else if (state.getPawn(i, j).equalsPawn("B")) {
+					buf = new int[2];
+					buf[0] = i;
+					buf[1] = j;
+					black.add(buf);
 				}
 			}
 		}
-		return result;
+
+		List<Action> actions = new ArrayList<Action>();
+		Iterator<int[]> it = null;
+
+		switch (state.getTurn()) {
+		case WHITE:
+			it = white.iterator(); // mi preparo per cercare tutte le mosse possibili per il bianco
+			break;
+		case BLACK:
+			it = black.iterator(); // mi preparo per cercare tutte le mosse possibili per il nero
+			break;
+		default:
+			return actions; // Nel caso in cui il turno sia BLACKWIN, WHITEWIN o DRAW restituisco la lista
+							// di azioni vuote (la partita non pu� proseguire dallo stato corrente)
+		}
+
+		// Arrivati qui � impossibile che l'Iterator it sia ancora null
+		int colonna = 0;
+		int riga = 0;
+
+		Action action = null;
+		try {
+			action = new Action("z0", "z0", state.getTurn());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		String fromString = null;
+		String toString = null;
+		int ctrl;
+
+		while (it.hasNext()) {
+			buf = it.next();
+			colonna = buf[1];
+			riga = buf[0];
+			
+			// tengo ferma la riga e muovo la colonna
+			for (int j = 0; j < state.getBoard().length; j++) {
+
+				ctrl = 0;
+				ctrl = myCheckMove(colonna, j, riga, riga, ctrl, state);
+
+				// se sono arrivato qui con ctrl=0 ho una mossa valida
+				if (ctrl == 0) {
+
+					char colNew = (char) j;
+					char colNewConverted = (char) Character.toLowerCase(colNew + 97);
+
+					char colOld = (char) colonna;
+					char colonOldConverted = (char) Character.toLowerCase(colOld + 97);
+
+					toString = new StringBuilder().append(colNewConverted).append(riga + 1).toString();
+					fromString = new StringBuilder().append(colonOldConverted).append(riga + 1).toString();
+
+					// System.out.println("action da: " + fromString + " a " + toString + " \n");
+
+					try {
+						action = new Action(fromString, toString, state.getTurn());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					// System.out.println(action.toString() + "\n");
+					actions.add(action);
+
+				}
+			}
+
+			// tengo ferma la colonna e muovo la riga
+
+			for (int i = 0; i < state.getBoard().length; i++) {
+
+				ctrl = 0;
+
+				ctrl = myCheckMove(colonna, colonna, riga, i, ctrl, state);
+
+				// se sono arrivato qui con ctrl=0 ho una mossa valida
+				if (ctrl == 0) {
+
+					char col = (char) colonna;
+					char colConverted = (char) Character.toLowerCase(col + 97);
+
+					toString = new StringBuilder().append(colConverted).append(i + 1).toString();
+					fromString = new StringBuilder().append(colConverted).append(riga + 1).toString();
+
+					// System.out.println("action da: " + fromString + " a " + toString + " \n");
+
+					try {
+						action = new Action(fromString, toString, state.getTurn());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					// System.out.println(action.toString() + "\n");
+					actions.add(action);
+				}
+			}
+		}
+		// System.out.println("tutte le possibili mosse: " + actions.toString());
+		return actions;
 	}
-	private List<Action> selectAllActionsForThisPawn(State currentState, int row, int column) {
-		List<Action> result = new ArrayList<Action>();
-		for(int currentRow=row+1; currentRow<9; currentRow++) {
-			State tempState=currentState.clone();
-			String from=tempState.getBox(row, column);
-			String to=tempState.getBox(currentRow, column);
-			Action a = null;
-			try {
-				a = new Action(from, to, tempState.getTurn());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				continue;
-			}
-			try {
-				checkMove(tempState, a);
-			} catch (BoardException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ActionException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (StopException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (PawnException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (DiagonalException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ThroneException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (OccupitedException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingCitadelException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (CitadelException e) {
-				// TODO Auto-generated catch block
-				continue; 
-			}
-			result.add(a);	
-		}
-		for(int currentRow=row-1; currentRow>=0; currentRow--) {
-			State tempState=currentState.clone();
-			String from=tempState.getBox(row, column);
-			String to=tempState.getBox(currentRow, column);
-			Action a = null;
-			try {
-				a = new Action(from, to, tempState.getTurn());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				continue;
-			}
-			try {
-				checkMove(tempState, a);
-			} catch (BoardException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ActionException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (StopException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (PawnException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (DiagonalException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ThroneException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (OccupitedException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingCitadelException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (CitadelException e) {
-				// TODO Auto-generated catch block
-				continue; 
-			}
-			result.add(a);	
-		}
-		for(int currentColumn=column+1; currentColumn<9; currentColumn++) {
-			State tempState=currentState.clone();
-			String from=tempState.getBox(row, column);
-			String to=tempState.getBox(row, currentColumn);
-			Action a = null;
-			try {
-				a = new Action(from, to, tempState.getTurn());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				continue;
-			}
-			try {
-				checkMove(tempState, a);
-			} catch (BoardException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ActionException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (StopException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (PawnException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (DiagonalException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ThroneException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (OccupitedException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingCitadelException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (CitadelException e) {
-				// TODO Auto-generated catch block
-				continue;
-			}
-			result.add(a);	
-		}
-		for(int currentColumn=column-1; currentColumn>=0; currentColumn--) {
-			State tempState=currentState.clone();
-			String from=tempState.getBox(row, column);
-			String to=tempState.getBox(row, currentColumn);
-			Action a = null;
-			try {
-				a = new Action(from, to, tempState.getTurn());
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				continue;
-			}
-			try {
-				checkMove(tempState, a);
-			} catch (BoardException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ActionException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (StopException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (PawnException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (DiagonalException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ThroneException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (OccupitedException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (ClimbingCitadelException e) {
-				// TODO Auto-generated catch block
-				continue;
-			} catch (CitadelException e) {
-				// TODO Auto-generated catch block
-				continue; 
-			}
-			result.add(a);	
-			}
-		
-		return result;
-	}
+
 	@Override
 	public State getInitialState() {
 		return new StateTablut();
@@ -1053,6 +1003,33 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				|| (turn.equalsTurn("W") && state.getTurn().equalsTurn("BW")))
 			return Double.NEGATIVE_INFINITY;
 		
+		
+		List<int[]> white = new ArrayList<int[]>(); // tengo traccia della posizione nello stato dei bianchi
+		int[] king = new int[2]; // tengo traccia della posizione del king
+		List<int[]> black = new ArrayList<int[]>(); // uguale per i neri
+
+		int[] buf; // mi indica la posizione ex."z6"
+
+		for (int i = 0; i < state.getBoard().length; i++) {
+			for (int j = 0; j < state.getBoard().length; j++) {
+				if (state.getPawn(i, j).equalsPawn("W") || state.getPawn(i, j).equalsPawn("K")) {
+					if (state.getPawn(i, j).equalsPawn("K")) {
+						king[0] = i;
+						king[1] = j;
+					}
+					buf = new int[2];
+					buf[0] = i;
+					buf[1] = j;
+					white.add(buf);
+				} else if (state.getPawn(i, j).equalsPawn("B")) {
+					buf = new int[2];
+					buf[0] = i;
+					buf[1] = j;
+					black.add(buf);
+				}
+			}
+		}
+		
 		MyHeuristic a = null;
 		if (turn.equalsTurn("W"))
 			a = new MyWhiteHeuristic(state);
@@ -1062,68 +1039,9 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 
 	@Override
 	public boolean isTerminal(State arg0) {
-		if((Duration.between(currentTime, LocalTime.now())).getSeconds()>=maxTimeInSeconds) // SOLO PER DEBUG
+		if (arg0.getTurn().equalsTurn("WW") || arg0.getTurn().equalsTurn("BW") || arg0.getTurn().equalsTurn("D"))
 			return true;
-		 if(isMaxDepth(arg0))
-			return true;
-		else if(isKingOnTheEdge(arg0))
-			return true;
-		else if(!arg0.boardString().contains("K"))
-			return true;
-		else return false;
-	}
-
-	private boolean isMaxDepth(State arg0){
-		updateDepth(arg0);
-		return (currentDepth>=maxDepth);
-	}
-	
-	/**
-	 * Keeps track of the current depth
-	 *  
-	 * @param arg0
-	 */
-	private void updateDepth(State arg0) {
-		if(!arg0.getTurn().equals(this.currentTurn) && this.numberOfConsecutiveEqualsTurn==0) {
-			this.currentTurn=arg0.getTurn();
-			this.currentDepth++;
-			System.out.println(this.currentDepth);
-		}
-		else if(arg0.getTurn().equals(this.currentTurn))
-			this.numberOfConsecutiveEqualsTurn++;
-		else if(!arg0.getTurn().equals(this.currentTurn) && this.numberOfConsecutiveEqualsTurn>0) {
-			this.currentTurn=arg0.getTurn();
-			this.currentDepth--;
-			System.out.println(this.currentDepth);
-			this.numberOfConsecutiveEqualsTurn=0;
-		}
-	}
-	
-	private boolean isKingOnTheEdge(State state) {
-		Pawn[][] board = state.getBoard();
-		int row, column;
-		row = 0;
-		for(column=0; column<9; column++) {
-			if(board[row][column].equals(Pawn.KING))
-				return true;
-		}
-		row = 8;
-		for(column=0; column<9; column++) {
-			if(board[row][column].equals(Pawn.KING))
-				return true;
-		}
-		column=0;
-		for(row=0; row<9; row++) {
-			if(board[row][column].equals(Pawn.KING))
-				return true;
-		}
-		column=8;
-		for(row=0; row<9; row++) {
-			if(board[row][column].equals(Pawn.KING))
-				return true;
-		}
 		return false;
 	}
-
 
 }

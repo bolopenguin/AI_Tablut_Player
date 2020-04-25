@@ -4,25 +4,17 @@ package player;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
-import aima.core.search.adversarial.AlphaBetaSearch;
+import aima.core.search.adversarial.AdversarialSearch;
+import aima.core.search.framework.Metrics;
 import domain.*;
 import domain.State.Turn;
-import exceptions.*;
 
 public class ChesaniPlayer extends TablutClient {
 
 	// Tempo massimo per fare la ricerca (forse da ridurre un pochino per non rischiare)
 	private static final int TIME = 60;
-	// Profondità di ricerca dell'albero
-	private static final int DEPTH = 7;
-
+	
 	// Costruttore
 	public ChesaniPlayer(String player, String name) throws UnknownHostException, IOException {
 		super(player, name);
@@ -87,11 +79,11 @@ public class ChesaniPlayer extends TablutClient {
 			
 			// Inizializzo il gioco e lo stato
 			
-			ChesaniGameAshtonTablut game = new ChesaniGameAshtonTablut(99, 0, "garbage", "fake", "fake", TIME, DEPTH);
+			ChesaniGameAshtonTablut game = new ChesaniGameAshtonTablut(99, 0, "garbage", "fake", "fake");
 			
 			System.out.println("Current state:");
 			state = this.getCurrentState();
-			System.out.println(state.toString());
+			//System.out.println(state.toString());
 			
 			if (this.getPlayer().equals(Turn.WHITE)) {
 				// TURNO DEL BIANCO
@@ -104,7 +96,7 @@ public class ChesaniPlayer extends TablutClient {
 				}
 				// FINE PARTITA
 				else if (state.getTurn().equals(StateTablut.Turn.WHITEWIN) | state.getTurn().equals(StateTablut.Turn.BLACKWIN) | state.getTurn().equals(StateTablut.Turn.DRAW)) {
-					System.out.println("END GAME");
+					System.out.println("Partita Finita");
 					System.exit(0);
 				}
 			} else {
@@ -118,7 +110,7 @@ public class ChesaniPlayer extends TablutClient {
                 }
 				// FINE PARTITA
 				else if (state.getTurn().equals(StateTablut.Turn.WHITEWIN) | state.getTurn().equals(StateTablut.Turn.BLACKWIN) | state.getTurn().equals(StateTablut.Turn.DRAW)) {
-					System.out.println("END GAME");
+					System.out.println("Partita Finita");
 					System.exit(0);
 				}
 
@@ -134,6 +126,8 @@ public class ChesaniPlayer extends TablutClient {
 		
 		Action action = null;
 		action = abS.makeDecision(state);
+		System.out.println("Mossa scelta: " + action.toString());
+		printStatistics(abS);
 		
 		try {
 			this.write(action);
@@ -145,6 +139,14 @@ public class ChesaniPlayer extends TablutClient {
 			// TODO Auto-generated catch block
 			System.err.println("Errore: connessione col server persa");
 			System.exit(-1);
+		}
+	}
+	
+	private void printStatistics (AdversarialSearch<State, Action> algorithm) {
+		Metrics metrics = algorithm.getMetrics();
+		for (String key : metrics.keySet()) {
+			String value = metrics.get(key);
+			System.out.println("["+key+"]:"+value);
 		}
 	}
 }
