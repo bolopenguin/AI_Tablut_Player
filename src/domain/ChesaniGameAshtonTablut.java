@@ -86,6 +86,8 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 	}
 	public void setCurrentDepth(int currentDepth) {
 		this.currentDepth = currentDepth;
+		System.out.println(this.currentDepth);
+
 	}
 	
 	public ChesaniGameAshtonTablut(int repeated_moves_allowed, int cache_size, String logs_folder, String whiteName,
@@ -1044,12 +1046,17 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 	}
 	@Override
 	public double getUtility(State state, Turn turn) {
-		//HeuristicEvaluator herEval = HeuristicEvaluatorFactory.getHeuristicEvaluator(arg1);
-		//return herEval.getEvaluation(arg0);
+		if ((turn.equalsTurn("B") && state.getTurn().equalsTurn("BW"))
+				|| (turn.equalsTurn("W") && state.getTurn().equalsTurn("WW")))
+			return Double.POSITIVE_INFINITY;
+		else if ((turn.equalsTurn("B") && state.getTurn().equalsTurn("WW"))
+				|| (turn.equalsTurn("W") && state.getTurn().equalsTurn("BW")))
+			return Double.NEGATIVE_INFINITY;
+		
 		MyHeuristic a = null;
 		if (turn.equalsTurn("W"))
 			a = new MyWhiteHeuristic(state);
-		//else a = new MyBlackHeuristic(state);
+		else a = new MyBlackHeuristic(state);
 		return a.getEvaluation();
 	}
 
@@ -1080,12 +1087,14 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		if(!arg0.getTurn().equals(this.currentTurn) && this.numberOfConsecutiveEqualsTurn==0) {
 			this.currentTurn=arg0.getTurn();
 			this.currentDepth++;
+			System.out.println(this.currentDepth);
 		}
 		else if(arg0.getTurn().equals(this.currentTurn))
 			this.numberOfConsecutiveEqualsTurn++;
 		else if(!arg0.getTurn().equals(this.currentTurn) && this.numberOfConsecutiveEqualsTurn>0) {
 			this.currentTurn=arg0.getTurn();
 			this.currentDepth--;
+			System.out.println(this.currentDepth);
 			this.numberOfConsecutiveEqualsTurn=0;
 		}
 	}

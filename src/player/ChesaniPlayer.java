@@ -21,7 +21,7 @@ public class ChesaniPlayer extends TablutClient {
 	// Tempo massimo per fare la ricerca (forse da ridurre un pochino per non rischiare)
 	private static final int TIME = 60;
 	// Profondità di ricerca dell'albero
-	private static final int DEEP = 7;
+	private static final int DEPTH = 7;
 
 	// Costruttore
 	public ChesaniPlayer(String player, String name) throws UnknownHostException, IOException {
@@ -87,7 +87,7 @@ public class ChesaniPlayer extends TablutClient {
 			
 			// Inizializzo il gioco e lo stato
 			
-			ChesaniGameAshtonTablut game = new ChesaniGameAshtonTablut(99, 0, "garbage", "fake", "fake", TIME, DEEP);
+			ChesaniGameAshtonTablut game = new ChesaniGameAshtonTablut(99, 0, "garbage", "fake", "fake", TIME, DEPTH);
 			
 			System.out.println("Current state:");
 			state = this.getCurrentState();
@@ -130,7 +130,7 @@ public class ChesaniPlayer extends TablutClient {
 	
 	
 	private void doTheMoveChesani(State state, ChesaniGameAshtonTablut game) {
-		AlphaBetaSearch<State, Action, State.Turn> abS = new AlphaBetaSearch<State, Action, State.Turn>(game);
+		ChesaniIterativeDeepeningAlphaBetaSearch abS = new ChesaniIterativeDeepeningAlphaBetaSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, TIME -3);
 		
 		Action action = null;
 		action = abS.makeDecision(state);
