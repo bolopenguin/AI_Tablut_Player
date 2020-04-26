@@ -330,8 +330,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 								&& !(a.getColumnTo() + 2 == 4 && a.getRowTo() == 8)
 								&& !(a.getColumnTo() + 2 == 0 && a.getRowTo() == 4)))) {
 			state.removePawn(a.getRowTo(), a.getColumnTo() + 1);
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina nera rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 		}
 		// controllo se mangio a sinistra
 		if (a.getColumnTo() > 1 && state.getPawn(a.getRowTo(), a.getColumnTo() - 1).equalsPawn("B")
@@ -344,8 +342,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 								&& !(a.getColumnTo() - 2 == 4 && a.getRowTo() == 8)
 								&& !(a.getColumnTo() - 2 == 0 && a.getRowTo() == 4)))) {
 			state.removePawn(a.getRowTo(), a.getColumnTo() - 1);
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina nera rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 		}
 		// controllo se mangio sopra
 		if (a.getRowTo() > 1 && state.getPawn(a.getRowTo() - 1, a.getColumnTo()).equalsPawn("B")
@@ -358,8 +354,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 								&& !(a.getColumnTo() == 4 && a.getRowTo() - 2 == 8)
 								&& !(a.getColumnTo() == 0 && a.getRowTo() - 2 == 4)))) {
 			state.removePawn(a.getRowTo() - 1, a.getColumnTo());
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina nera rimossa in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
 		}
 		// controllo se mangio sotto
 		if (a.getRowTo() < state.getBoard().length - 2
@@ -373,21 +367,17 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 								&& !(a.getColumnTo() == 4 && a.getRowTo() + 2 == 8)
 								&& !(a.getColumnTo() == 0 && a.getRowTo() + 2 == 4)))) {
 			state.removePawn(a.getRowTo() + 1, a.getColumnTo());
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina nera rimossa in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 		}
 		// controllo se ho vinto
 		if (a.getRowTo() == 0 || a.getRowTo() == state.getBoard().length - 1 || a.getColumnTo() == 0
 				|| a.getColumnTo() == state.getBoard().length - 1) {
 			if (state.getPawn(a.getRowTo(), a.getColumnTo()).equalsPawn("K")) {
 				state.setTurn(State.Turn.WHITEWIN);
-				this.loggGame.fine("Bianco vince con re in " + a.getTo());
 			}
 		}
 		// TODO: implement the winning condition of the capture of the last
 		// black checker
 
-		this.movesWithutCapturing++;
 		return state;
 	}
 
@@ -399,30 +389,22 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(3, 4).equalsPawn("B") && state.getPawn(4, 3).equalsPawn("B")
 						&& state.getPawn(5, 4).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 				}
 			}
 			// re adiacente al trono
 			if (state.getBox(a.getRowTo(), a.getColumnTo() - 1).equals("e4")) {
 				if (state.getPawn(2, 4).equalsPawn("B") && state.getPawn(3, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 				}
 			}
 			if (state.getBox(a.getRowTo(), a.getColumnTo() - 1).equals("f5")) {
 				if (state.getPawn(5, 5).equalsPawn("B") && state.getPawn(3, 5).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 				}
 			}
 			if (state.getBox(a.getRowTo(), a.getColumnTo() - 1).equals("e6")) {
 				if (state.getPawn(6, 4).equalsPawn("B") && state.getPawn(5, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 				}
 			}
 			// sono fuori dalle zone del trono
@@ -433,8 +415,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(a.getRowTo(), a.getColumnTo() - 2).equalsPawn("B")
 						|| this.citadels.contains(state.getBox(a.getRowTo(), a.getColumnTo() - 2))) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 				}
 			}
 		}
@@ -450,30 +430,22 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(3, 4).equalsPawn("B") && state.getPawn(4, 5).equalsPawn("B")
 						&& state.getPawn(5, 4).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 				}
 			}
 			// re adiacente al trono
 			if (state.getBox(a.getRowTo(), a.getColumnTo() + 1).equals("e4")) {
 				if (state.getPawn(2, 4).equalsPawn("B") && state.getPawn(3, 5).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 				}
 			}
 			if (state.getBox(a.getRowTo(), a.getColumnTo() + 1).equals("e6")) {
 				if (state.getPawn(5, 5).equalsPawn("B") && state.getPawn(6, 4).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 				}
 			}
 			if (state.getBox(a.getRowTo(), a.getColumnTo() + 1).equals("d5")) {
 				if (state.getPawn(3, 3).equalsPawn("B") && state.getPawn(5, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 				}
 			}
 			// sono fuori dalle zone del trono
@@ -484,8 +456,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(a.getRowTo(), a.getColumnTo() + 2).equalsPawn("B")
 						|| this.citadels.contains(state.getBox(a.getRowTo(), a.getColumnTo() + 2))) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 				}
 			}
 		}
@@ -496,35 +466,28 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		// ho il re sotto
 		if (a.getRowTo() < state.getBoard().length - 2
 				&& state.getPawn(a.getRowTo() + 1, a.getColumnTo()).equalsPawn("K")) {
+			// System.out.println("Ho il re sotto");
 			// re sul trono
 			if (state.getBox(a.getRowTo() + 1, a.getColumnTo()).equals("e5")) {
 				if (state.getPawn(5, 4).equalsPawn("B") && state.getPawn(4, 5).equalsPawn("B")
 						&& state.getPawn(4, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 				}
 			}
 			// re adiacente al trono
 			if (state.getBox(a.getRowTo() + 1, a.getColumnTo()).equals("e4")) {
 				if (state.getPawn(3, 3).equalsPawn("B") && state.getPawn(3, 5).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 				}
 			}
 			if (state.getBox(a.getRowTo() + 1, a.getColumnTo()).equals("d5")) {
 				if (state.getPawn(4, 2).equalsPawn("B") && state.getPawn(5, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 				}
 			}
 			if (state.getBox(a.getRowTo() + 1, a.getColumnTo()).equals("f5")) {
 				if (state.getPawn(4, 6).equalsPawn("B") && state.getPawn(5, 5).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 				}
 			}
 			// sono fuori dalle zone del trono
@@ -535,8 +498,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(a.getRowTo() + 2, a.getColumnTo()).equalsPawn("B")
 						|| this.citadels.contains(state.getBox(a.getRowTo() + 2, a.getColumnTo()))) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 				}
 			}
 		}
@@ -551,30 +512,23 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(3, 4).equalsPawn("B") && state.getPawn(4, 5).equalsPawn("B")
 						&& state.getPawn(4, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
 				}
 			}
 			// re adiacente al trono
 			if (state.getBox(a.getRowTo() - 1, a.getColumnTo()).equals("e6")) {
 				if (state.getPawn(5, 3).equalsPawn("B") && state.getPawn(5, 5).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
+
 				}
 			}
 			if (state.getBox(a.getRowTo() - 1, a.getColumnTo()).equals("d5")) {
 				if (state.getPawn(4, 2).equalsPawn("B") && state.getPawn(3, 3).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
 				}
 			}
 			if (state.getBox(a.getRowTo() - 1, a.getColumnTo()).equals("f5")) {
 				if (state.getPawn(4, 6).equalsPawn("B") && state.getPawn(3, 5).equalsPawn("B")) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
 				}
 			}
 			// sono fuori dalle zone del trono
@@ -585,8 +539,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				if (state.getPawn(a.getRowTo() - 2, a.getColumnTo()).equalsPawn("B")
 						|| this.citadels.contains(state.getBox(a.getRowTo() - 2, a.getColumnTo()))) {
 					state.setTurn(State.Turn.BLACKWIN);
-					this.loggGame
-							.fine("Nero vince con re catturato in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
 				}
 			}
 		}
@@ -599,23 +551,15 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 				&& state.getPawn(a.getRowTo(), a.getColumnTo() + 1).equalsPawn("W")) {
 			if (state.getPawn(a.getRowTo(), a.getColumnTo() + 2).equalsPawn("B")) {
 				state.removePawn(a.getRowTo(), a.getColumnTo() + 1);
-				this.movesWithutCapturing = -1;
-				this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 			}
 			if (state.getPawn(a.getRowTo(), a.getColumnTo() + 2).equalsPawn("T")) {
 				state.removePawn(a.getRowTo(), a.getColumnTo() + 1);
-				this.movesWithutCapturing = -1;
-				this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 			}
 			if (this.citadels.contains(state.getBox(a.getRowTo(), a.getColumnTo() + 2))) {
 				state.removePawn(a.getRowTo(), a.getColumnTo() + 1);
-				this.movesWithutCapturing = -1;
-				this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 			}
 			if (state.getBox(a.getRowTo(), a.getColumnTo() + 2).equals("e5")) {
 				state.removePawn(a.getRowTo(), a.getColumnTo() + 1);
-				this.movesWithutCapturing = -1;
-				this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() + 1));
 			}
 
 		}
@@ -631,8 +575,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 						|| this.citadels.contains(state.getBox(a.getRowTo(), a.getColumnTo() - 2))
 						|| (state.getBox(a.getRowTo(), a.getColumnTo() - 2).equals("e5")))) {
 			state.removePawn(a.getRowTo(), a.getColumnTo() - 1);
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo(), a.getColumnTo() - 1));
 		}
 		return state;
 	}
@@ -645,8 +587,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 						|| this.citadels.contains(state.getBox(a.getRowTo() - 2, a.getColumnTo()))
 						|| (state.getBox(a.getRowTo() - 2, a.getColumnTo()).equals("e5")))) {
 			state.removePawn(a.getRowTo() - 1, a.getColumnTo());
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo() - 1, a.getColumnTo()));
 		}
 		return state;
 	}
@@ -660,8 +600,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 						|| this.citadels.contains(state.getBox(a.getRowTo() + 2, a.getColumnTo()))
 						|| (state.getBox(a.getRowTo() + 2, a.getColumnTo()).equals("e5")))) {
 			state.removePawn(a.getRowTo() + 1, a.getColumnTo());
-			this.movesWithutCapturing = -1;
-			this.loggGame.fine("Pedina bianca rimossa in: " + state.getBox(a.getRowTo() + 1, a.getColumnTo()));
 		}
 		return state;
 	}
@@ -677,7 +615,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		this.checkCaptureBlackKingDown(state, a);
 		this.checkCaptureBlackKingUp(state, a);
 
-		this.movesWithutCapturing++;
 		return state;
 	}
 
@@ -980,20 +917,47 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 
 	@Override
 	public State getResult(State arg0, Action arg1) {	
-		return toNewState(arg0, arg1);
+		return myMovePawn(arg0.clone(), arg1);
 	}
 	
-	private State toNewState(State state, Action a) {
-		State result = state.clone();
-		result = this.movePawn(result, a);
+	private State myMovePawn(State state, Action a) {
+		// funzione di aggiornamento di uno stato data una azione
+		State.Pawn[][] newBoard = state.getBoard();
 
-		if (result.getTurn().equalsTurn("W")) {
-			result = this.checkCaptureBlack(result, a);
-		} else if (result.getTurn().equalsTurn("B")) {
-			result = this.checkCaptureWhite(result, a);
+		// metto nel nuovo tabellone la pedina mossa
+		if (state.getTurn().equalsTurn("W")) {
+			if (state.getPawn(a.getRowFrom(), a.getColumnFrom()).equalsPawn("K"))
+				newBoard[a.getRowTo()][a.getColumnTo()] = State.Pawn.KING;
+			else
+				newBoard[a.getRowTo()][a.getColumnTo()] = State.Pawn.WHITE;
+		} else /* if (state.getTurn().equalsTurn("B")) */ {
+			newBoard[a.getRowTo()][a.getColumnTo()] = State.Pawn.BLACK;
 		}
-		return result;
+
+		if (a.getColumnFrom() == 4 && a.getRowFrom() == 4)
+			newBoard[a.getRowFrom()][a.getColumnFrom()] = State.Pawn.THRONE;
+		else
+			newBoard[a.getRowFrom()][a.getColumnFrom()] = State.Pawn.EMPTY;
+
+		// aggiorno il tabellone
+		state.setBoard(newBoard);
+
+		// effettuo eventuali catture
+		if (state.getTurn().equalsTurn("B")) {
+			state = this.checkCaptureBlack(state, a);
+		} else /* if (state.getTurn().equalsTurn("W")) */ {
+			state = this.checkCaptureWhite(state, a);
+		}
+
+		// cambio il turno
+		if (state.getTurn().equalsTurn(State.Turn.WHITE.toString()))
+			state.setTurn(State.Turn.BLACK);
+		else if (state.getTurn().equalsTurn(State.Turn.BLACK.toString()))
+			state.setTurn(State.Turn.WHITE);
+
+		return state;
 	}
+	
 	@Override
 	public double getUtility(State state, Turn turn) {
 		if ((turn.equalsTurn("B") && state.getTurn().equalsTurn("BW"))
@@ -1002,33 +966,6 @@ public class ChesaniGameAshtonTablut implements Game, aima.core.search.adversari
 		else if ((turn.equalsTurn("B") && state.getTurn().equalsTurn("WW"))
 				|| (turn.equalsTurn("W") && state.getTurn().equalsTurn("BW")))
 			return Double.NEGATIVE_INFINITY;
-		
-		
-		List<int[]> white = new ArrayList<int[]>(); // tengo traccia della posizione nello stato dei bianchi
-		int[] king = new int[2]; // tengo traccia della posizione del king
-		List<int[]> black = new ArrayList<int[]>(); // uguale per i neri
-
-		int[] buf; // mi indica la posizione ex."z6"
-
-		for (int i = 0; i < state.getBoard().length; i++) {
-			for (int j = 0; j < state.getBoard().length; j++) {
-				if (state.getPawn(i, j).equalsPawn("W") || state.getPawn(i, j).equalsPawn("K")) {
-					if (state.getPawn(i, j).equalsPawn("K")) {
-						king[0] = i;
-						king[1] = j;
-					}
-					buf = new int[2];
-					buf[0] = i;
-					buf[1] = j;
-					white.add(buf);
-				} else if (state.getPawn(i, j).equalsPawn("B")) {
-					buf = new int[2];
-					buf[0] = i;
-					buf[1] = j;
-					black.add(buf);
-				}
-			}
-		}
 		
 		MyHeuristic a = null;
 		if (turn.equalsTurn("W"))

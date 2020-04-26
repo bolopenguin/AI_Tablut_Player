@@ -68,6 +68,11 @@ public class ChesaniPlayer extends TablutClient {
 		System.out.println("You are player " + this.getPlayer().toString() + "!");
 		
 		
+		ChesaniGameAshtonTablut game = new ChesaniGameAshtonTablut(99, 0, "garbage", "fake", "fake");
+		ChesaniIterativeDeepeningAlphaBetaSearch abS = new ChesaniIterativeDeepeningAlphaBetaSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, TIME -3);
+		abS.setLogEnabled(true);
+
+		
 		while (true) {
 			// Leggo lo stato della scacchiera dal Server
 			try {
@@ -77,18 +82,15 @@ public class ChesaniPlayer extends TablutClient {
 				System.exit(-1);
 			}
 			
-			// Inizializzo il gioco e lo stato
-			
-			ChesaniGameAshtonTablut game = new ChesaniGameAshtonTablut(99, 0, "garbage", "fake", "fake");
-			
+			// Inizializzo il gioco e lo stato			
 			System.out.println("Current state:");
 			state = this.getCurrentState();
-			//System.out.println(state.toString());
+			System.out.println(state.toString());
 			
 			if (this.getPlayer().equals(Turn.WHITE)) {
 				// TURNO DEL BIANCO
 				if (this.getCurrentState().getTurn().equals(StateTablut.Turn.WHITE)) {
-					this.doTheMoveChesani(state,game);
+					this.doTheMoveChesani(state,game, abS);
 				}
 				// AVVERSARIO
 				else if (state.getTurn().equals(StateTablut.Turn.BLACK) ) {
@@ -102,7 +104,7 @@ public class ChesaniPlayer extends TablutClient {
 			} else {
 				// TURNO DEL NERO
 				if (this.getCurrentState().getTurn().equals(StateTablut.Turn.BLACK)) {
-					this.doTheMoveChesani(state,game);
+					this.doTheMoveChesani(state,game, abS);
 				}
 				// AVVERSARIO
 				else if (state.getTurn().equals(StateTablut.Turn.WHITE)) {
@@ -121,9 +123,7 @@ public class ChesaniPlayer extends TablutClient {
 	
 	
 	
-	private void doTheMoveChesani(State state, ChesaniGameAshtonTablut game) {
-		ChesaniIterativeDeepeningAlphaBetaSearch abS = new ChesaniIterativeDeepeningAlphaBetaSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, TIME -3);
-		
+	private void doTheMoveChesani(State state, ChesaniGameAshtonTablut game, ChesaniIterativeDeepeningAlphaBetaSearch abS) {		
 		Action action = null;
 		action = abS.makeDecision(state);
 		System.out.println("Mossa scelta: " + action.toString());
