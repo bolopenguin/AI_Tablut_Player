@@ -21,7 +21,7 @@ import strategy.*;
  * Game engine inspired by the Ashton Rules of Tablut
  * 
  * 
- * @author A. Piretti
+ * @author A. Piretti, Andrea Galassi
  *
  */
 public class GameTablut implements Game, aima.core.search.adversarial.Game<State, Action, State.Turn> {
@@ -43,14 +43,12 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	private FileHandler fh;
 	private Logger loggGame;
 	private List<String> citadels;
-	// private List<String> strangeCitadels;
 	private List<State> drawConditions;
 
 	
 	public GameTablut(int repeated_moves_allowed, int cache_size, String logs_folder, String whiteName,
 			String blackName) {
 		this(new StateTablut(), repeated_moves_allowed, cache_size, logs_folder, whiteName, blackName);
-
 	}
 
 	private GameTablut(State state, int repeated_moves_allowed, int cache_size, String logs_folder,
@@ -109,95 +107,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		// this.strangeCitadels.add("a5");
 		// this.strangeCitadels.add("i5");
 		// this.strangeCitadels.add("e9");
-	}
-	
-	@Override
-	public int checkMove(int columnFrom, int columnTo, int rowFrom, int rowTo, int ctrl, State state) {
-
-	if (columnFrom > state.getBoard().length - 1 || rowFrom > state.getBoard().length - 1
-			|| rowTo > state.getBoard().length - 1 || columnTo > state.getBoard().length - 1 || columnFrom < 0
-			|| rowFrom < 0 || rowTo < 0 || columnTo < 0)
-		ctrl = 1;
-
-	// controllo che non vada sul trono
-	if (state.getPawn(rowTo, columnTo).equalsPawn(State.Pawn.THRONE.toString()))
-		ctrl = 1;
-
-	// controllo la casella di arrivo
-	if (!state.getPawn(rowTo, columnTo).equalsPawn(State.Pawn.EMPTY.toString()))
-		ctrl = 1;
-
-	if (this.citadels.contains(state.getBox(rowTo, columnTo))
-			&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-		ctrl = 1;
-
-	if (this.citadels.contains(state.getBox(rowTo, columnTo))
-			&& this.citadels.contains(state.getBox(rowFrom, columnFrom))) {
-		if (rowFrom == rowTo) {
-			if (columnFrom - columnTo > 5 || columnFrom - columnTo < -5)
-				ctrl = 1;
-		} else {
-			if (rowFrom - rowTo > 5 || rowFrom - rowTo < -5)
-				ctrl = 1;
-		}
-	}
-
-	// controllo se cerco di stare fermo
-	if (rowFrom == rowTo && columnFrom == columnTo)
-		ctrl = 1;
-
-	// controllo se sto muovendo una pedina giusta
-	if (state.getTurn().equalsTurn(State.Turn.WHITE.toString())) {
-		if (!state.getPawn(rowFrom, columnFrom).equalsPawn("W")
-				&& !state.getPawn(rowFrom, columnFrom).equalsPawn("K"))
-			ctrl = 1;
-	}
-
-	if (state.getTurn().equalsTurn(State.Turn.BLACK.toString())) {
-		if (!state.getPawn(rowFrom, columnFrom).equalsPawn("B"))
-			ctrl = 1;
-	}
-
-	// controllo di non scavalcare pedine
-	if (rowFrom == rowTo) {
-		if (columnFrom > columnTo) {
-			for (int i = columnTo; i < columnFrom; i++) {
-				if (!state.getPawn(rowFrom, i).equalsPawn(State.Pawn.EMPTY.toString()))
-					ctrl = 1;
-				if (this.citadels.contains(state.getBox(rowFrom, i))
-						&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-					ctrl = 1;
-			}
-		} else {
-			for (int i = columnFrom + 1; i <= columnTo; i++) {
-				if (!state.getPawn(rowFrom, i).equalsPawn(State.Pawn.EMPTY.toString()))
-					ctrl = 1;
-				if (this.citadels.contains(state.getBox(rowFrom, i))
-						&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-					ctrl = 1;
-			}
-		}
-	} else {
-		if (rowFrom > rowTo) {
-			for (int i = rowTo; i < rowFrom; i++) {
-				if (!state.getPawn(i, columnFrom).equalsPawn(State.Pawn.EMPTY.toString()))
-					ctrl = 1;
-				if (this.citadels.contains(state.getBox(i, columnFrom))
-						&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-					ctrl = 1;
-			}
-		} else {
-			for (int i = rowFrom + 1; i <= rowTo; i++) {
-				if (!state.getPawn(i, columnFrom).equalsPawn(State.Pawn.EMPTY.toString()))
-					ctrl = 1;
-				if (this.citadels.contains(state.getBox(i, columnFrom))
-						&& !this.citadels.contains(state.getBox(rowFrom, columnFrom))) {
-					ctrl = 1;
-				}
-			}
-		}
-	}
-	return ctrl;
 	}
 
 	private State checkCaptureWhite(State state, Action a) {
@@ -540,7 +449,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		List<int[]> white = new ArrayList<int[]>(); // tengo traccia della posizione nello stato dei bianchi
 		List<int[]> black = new ArrayList<int[]>(); // uguale per i neri
 
-		int[] buf; // mi indica la posizione ex."z6"
+		int[] buf; // mi indica la posizione ex."z"
 
 		for (int i = 0; i < state.getBoard().length; i++) {
 			for (int j = 0; j < state.getBoard().length; j++) {
@@ -600,7 +509,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			for (int j = 0; j < state.getBoard().length; j++) {
 
 				ctrl = 0;
-				ctrl = myCheckMove(colonna, j, riga, riga, ctrl, state);
+				ctrl = checkMove(colonna, j, riga, riga, ctrl, state);
 
 				// se sono arrivato qui con ctrl=0 ho una mossa valida
 				if (ctrl == 0) {
@@ -635,7 +544,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 
 				ctrl = 0;
 
-				ctrl = myCheckMove(colonna, colonna, riga, i, ctrl, state);
+				ctrl = checkMove(colonna, colonna, riga, i, ctrl, state);
 
 				// se sono arrivato qui con ctrl=0 ho una mossa valida
 				if (ctrl == 0) {
@@ -664,8 +573,8 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		return actions;
 	}
 	
-	
-	public int myCheckMove(int columnFrom, int columnTo, int rowFrom, int rowTo, int ctrl, State state) {
+	@Override
+	public int checkMove(int columnFrom, int columnTo, int rowFrom, int rowTo, int ctrl, State state) {
 
 		if (columnFrom > state.getBoard().length - 1 || rowFrom > state.getBoard().length - 1
 				|| rowTo > state.getBoard().length - 1 || columnTo > state.getBoard().length - 1 || columnFrom < 0

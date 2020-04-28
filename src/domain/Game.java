@@ -9,5 +9,4 @@ public interface Game {
 
 	public int checkMove(int columnFrom, int columnTo, int rowFrom, int rowTo, int ctrl, State state);
 
-
 }
