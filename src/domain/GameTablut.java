@@ -16,50 +16,25 @@ import java.util.logging.SimpleFormatter;
 import domain.State.Turn;
 import strategy.*;
 
-/**
- * 
- * Game engine inspired by the Ashton Rules of Tablut
- * 
- * 
- * @author A. Piretti, Andrea Galassi
- *
- */
-public class GameTablut implements Game, aima.core.search.adversarial.Game<State, Action, State.Turn> {
-	/**
-	 * Number of repeated states that can occur before a draw
-	 */
-	private int repeated_moves_allowed;
 
-	/**
-	 * Number of states kept in memory. negative value means infinite.
-	 */
-	private int cache_size;
-	/**
-	 * Counter for the moves without capturing that have occurred
-	 */
-	private int movesWithutCapturing;
+public class GameTablut implements Game, aima.core.search.adversarial.Game<State, Action, State.Turn> {
+
 	private String gameLogName;
-	private File gameLog;
+	public  File gameLog;
 	private FileHandler fh;
-	private Logger loggGame;
+	public Logger loggGame;
+	
 	private List<String> citadels;
-	private List<State> drawConditions;
 
 	
-	public GameTablut(int repeated_moves_allowed, int cache_size, String logs_folder, String whiteName,
-			String blackName) {
-		this(new StateTablut(), repeated_moves_allowed, cache_size, logs_folder, whiteName, blackName);
+	public GameTablut(String logs_folder) {
+		this(new StateTablut(), logs_folder);
 	}
 
-	private GameTablut(State state, int repeated_moves_allowed, int cache_size, String logs_folder,
-			String whiteName, String blackName) {
+	private GameTablut(State state, String logs_folder) {
 		super();
-		this.repeated_moves_allowed = repeated_moves_allowed;
-		this.cache_size = cache_size;
-		this.movesWithutCapturing = 0;
 
-		Path p = Paths.get(logs_folder + File.separator + "_" + whiteName + "_vs_" + blackName + "_"
-				+ new Date().getTime() + "_gameLog.txt");
+		Path p = Paths.get(logs_folder + File.separator + new Date().getTime() + "_gameLog.txt");
 		p = p.toAbsolutePath();
 		this.gameLogName = p.toString();
 		File gamefile = new File(this.gameLogName);
@@ -80,13 +55,9 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		loggGame.addHandler(this.fh);
 		this.fh.setFormatter(new SimpleFormatter());
 		loggGame.setLevel(Level.FINE);
-		loggGame.fine("Players:\tWhite:\t" + whiteName + "\tvs\t" + blackName);
-		loggGame.fine("Repeated moves allowed:\t" + repeated_moves_allowed + "\tCache:\t" + cache_size);
 		loggGame.fine("Inizio partita");
-		loggGame.fine("Stato:\n" + state.toString());
-		drawConditions = new ArrayList<State>();
 		this.citadels = new ArrayList<String>();
-		// this.strangeCitadels = new ArrayList<String>();
+		
 		this.citadels.add("a4");
 		this.citadels.add("a5");
 		this.citadels.add("a6");
@@ -103,12 +74,12 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		this.citadels.add("e9");
 		this.citadels.add("f9");
 		this.citadels.add("e8");
-		// this.strangeCitadels.add("e1");
-		// this.strangeCitadels.add("a5");
-		// this.strangeCitadels.add("i5");
-		// this.strangeCitadels.add("e9");
 	}
 
+	
+	
+	
+	
 	private State checkCaptureWhite(State state, Action a) {
 		// controllo se mangio a destra
 		if (a.getColumnTo() < state.getBoard().length - 2
@@ -409,36 +380,16 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 
 		return state;
 	}
+	
 
-	public File getGameLog() {
-		return gameLog;
-	}
-
-	public int getMovesWithutCapturing() {
-		return movesWithutCapturing;
-	}
-
-	@SuppressWarnings("unused")
-	private void setMovesWithutCapturing(int movesWithutCapturing) {
-		this.movesWithutCapturing = movesWithutCapturing;
-	}
-
-	public int getRepeated_moves_allowed() {
-		return repeated_moves_allowed;
-	}
-
-	public int getCache_size() {
-		return cache_size;
-	}
-
-	public List<State> getDrawConditions() {
-		return drawConditions;
-	}
-
-	public void clearDrawConditions() {
-		drawConditions.clear();
-	}
-
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 	@Override
@@ -446,19 +397,20 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		
 		State state = arg0;
 		
-		List<int[]> white = new ArrayList<int[]>(); // tengo traccia della posizione nello stato dei bianchi
+		// Liste per tenere il conto dei bianchi e dei neri, e delle loro posizioni
+		List<int[]> white = new ArrayList<int[]>();
 		List<int[]> black = new ArrayList<int[]>(); // uguale per i neri
 
-		int[] buf; // mi indica la posizione ex."z"
+		// Buffer per indicare la posizione e salvarla poi nelle liste
+		int[] buf;
 
+		// Popolo le due liste
 		for (int i = 0; i < state.getBoard().length; i++) {
 			for (int j = 0; j < state.getBoard().length; j++) {
 				if (state.getPawn(i, j).equalsPawn("W") || state.getPawn(i, j).equalsPawn("K")) {
 					buf = new int[2];
 					buf[0] = i;
-					// System.out.println( "riga: " + buf[0] + " ");
 					buf[1] = j;
-					// System.out.println( "colonna: " + buf[1] + " \n");
 					white.add(buf);
 				} else if (state.getPawn(i, j).equalsPawn("B")) {
 					buf = new int[2];
@@ -469,50 +421,52 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			}
 		}
 
+		// Sposto il contenuto delle liste all'interno di un iteratore
 		List<Action> actions = new ArrayList<Action>();
 		Iterator<int[]> it = null;
 
 		switch (state.getTurn()) {
 		case WHITE:
-			it = white.iterator(); // mi preparo per cercare tutte le mosse possibili per il bianco
+			it = white.iterator(); 
 			break;
 		case BLACK:
-			it = black.iterator(); // mi preparo per cercare tutte le mosse possibili per il nero
+			it = black.iterator(); 
 			break;
+		// Il default è per quando la partita termina, si restituisce la lista di azioni vuota	
 		default:
-			return actions; // Nel caso in cui il turno sia BLACKWIN, WHITEWIN o DRAW restituisco la lista
-							// di azioni vuote (la partita non puï¿½ proseguire dallo stato corrente)
+			return actions; 
 		}
 
-		// Arrivati qui ï¿½ impossibile che l'Iterator it sia ancora null
+		
 		int colonna = 0;
 		int riga = 0;
-
+		
 		Action action = null;
 		try {
 			action = new Action("z0", "z0", state.getTurn());
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
 		String fromString = null;
 		String toString = null;
-		int ctrl;
+		boolean ctrl;
 
+		// Finché ci pedine nell'iteratore eseguo il ciclo
 		while (it.hasNext()) {
 			buf = it.next();
 			colonna = buf[1];
 			riga = buf[0];
 			
-			// tengo ferma la riga e muovo la colonna
+			// Trovo tutte le azioni possibili tenendo la riga fissa e spostando sulle colonne
 			for (int j = 0; j < state.getBoard().length; j++) {
 
-				ctrl = 0;
-				ctrl = checkMove(colonna, j, riga, riga, ctrl, state);
+				ctrl = true;
+				// se vale false significa che la mossa non è valida e non va salvata
+				ctrl = checkMove(colonna, j, riga, riga, state);
 
-				// se sono arrivato qui con ctrl=0 ho una mossa valida
-				if (ctrl == 0) {
+				// se vale true invece la mossa è valida e la salvo nella lista di azioni
+				if (ctrl) {
 
 					char colNew = (char) j;
 					char colNewConverted = (char) Character.toLowerCase(colNew + 97);
@@ -523,101 +477,86 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 					toString = new StringBuilder().append(colNewConverted).append(riga + 1).toString();
 					fromString = new StringBuilder().append(colonOldConverted).append(riga + 1).toString();
 
-					// System.out.println("action da: " + fromString + " a " + toString + " \n");
-
 					try {
 						action = new Action(fromString, toString, state.getTurn());
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-					// System.out.println(action.toString() + "\n");
+					
 					actions.add(action);
-
 				}
 			}
 
-			// tengo ferma la colonna e muovo la riga
-
+			// Come sopra ma questa volta tengo la colonna fissa e muovo la riga
 			for (int i = 0; i < state.getBoard().length; i++) {
 
-				ctrl = 0;
+				ctrl = true;
+				ctrl = checkMove(colonna, colonna, riga, i, state);
 
-				ctrl = checkMove(colonna, colonna, riga, i, ctrl, state);
-
-				// se sono arrivato qui con ctrl=0 ho una mossa valida
-				if (ctrl == 0) {
+				if (ctrl) {
 
 					char col = (char) colonna;
 					char colConverted = (char) Character.toLowerCase(col + 97);
 
 					toString = new StringBuilder().append(colConverted).append(i + 1).toString();
 					fromString = new StringBuilder().append(colConverted).append(riga + 1).toString();
-
-					// System.out.println("action da: " + fromString + " a " + toString + " \n");
-
 					try {
 						action = new Action(fromString, toString, state.getTurn());
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-					// System.out.println(action.toString() + "\n");
 					actions.add(action);
 				}
 			}
 		}
-		// System.out.println("tutte le possibili mosse: " + actions.toString());
 		return actions;
 	}
 	
 	@Override
-	public int checkMove(int columnFrom, int columnTo, int rowFrom, int rowTo, int ctrl, State state) {
-
+	public boolean checkMove(int columnFrom, int columnTo, int rowFrom, int rowTo, State state) {
+		// Se la mossa cerca di andare fuori dalla tavola è innammissibile 
 		if (columnFrom > state.getBoard().length - 1 || rowFrom > state.getBoard().length - 1
 				|| rowTo > state.getBoard().length - 1 || columnTo > state.getBoard().length - 1 || columnFrom < 0
 				|| rowFrom < 0 || rowTo < 0 || columnTo < 0)
-			ctrl = 1;
+			return false;
 
 		// controllo che non vada sul trono
 		if (state.getPawn(rowTo, columnTo).equalsPawn(State.Pawn.THRONE.toString()))
-			ctrl = 1;
+			return false;
 
 		// controllo la casella di arrivo
 		if (!state.getPawn(rowTo, columnTo).equalsPawn(State.Pawn.EMPTY.toString()))
-			ctrl = 1;
+			return false;
 
 		if (this.citadels.contains(state.getBox(rowTo, columnTo))
 				&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-			ctrl = 1;
+			return false;
 
 		if (this.citadels.contains(state.getBox(rowTo, columnTo))
 				&& this.citadels.contains(state.getBox(rowFrom, columnFrom))) {
 			if (rowFrom == rowTo) {
 				if (columnFrom - columnTo > 5 || columnFrom - columnTo < -5)
-					ctrl = 1;
+					return false;
 			} else {
 				if (rowFrom - rowTo > 5 || rowFrom - rowTo < -5)
-					ctrl = 1;
+					return false;
 			}
 		}
 
 		// controllo se cerco di stare fermo
 		if (rowFrom == rowTo && columnFrom == columnTo)
-			ctrl = 1;
+			return false;
 
 		// controllo se sto muovendo una pedina giusta
 		if (state.getTurn().equalsTurn(State.Turn.WHITE.toString())) {
 			if (!state.getPawn(rowFrom, columnFrom).equalsPawn("W")
 					&& !state.getPawn(rowFrom, columnFrom).equalsPawn("K"))
-				ctrl = 1;
+				return false;
 		}
 
 		if (state.getTurn().equalsTurn(State.Turn.BLACK.toString())) {
 			if (!state.getPawn(rowFrom, columnFrom).equalsPawn("B"))
-				ctrl = 1;
+				return false;
 		}
 
 		// controllo di non scavalcare pedine
@@ -625,41 +564,44 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			if (columnFrom > columnTo) {
 				for (int i = columnTo; i < columnFrom; i++) {
 					if (!state.getPawn(rowFrom, i).equalsPawn(State.Pawn.EMPTY.toString()))
-						ctrl = 1;
+						return false;
 					if (this.citadels.contains(state.getBox(rowFrom, i))
 							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-						ctrl = 1;
+						return false;
 				}
 			} else {
 				for (int i = columnFrom + 1; i <= columnTo; i++) {
 					if (!state.getPawn(rowFrom, i).equalsPawn(State.Pawn.EMPTY.toString()))
-						ctrl = 1;
+						return false;
 					if (this.citadels.contains(state.getBox(rowFrom, i))
 							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-						ctrl = 1;
+						return false;
 				}
 			}
 		} else {
 			if (rowFrom > rowTo) {
 				for (int i = rowTo; i < rowFrom; i++) {
 					if (!state.getPawn(i, columnFrom).equalsPawn(State.Pawn.EMPTY.toString()))
-						ctrl = 1;
+						return false;
 					if (this.citadels.contains(state.getBox(i, columnFrom))
 							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom)))
-						ctrl = 1;
+						return false;
 				}
 			} else {
 				for (int i = rowFrom + 1; i <= rowTo; i++) {
 					if (!state.getPawn(i, columnFrom).equalsPawn(State.Pawn.EMPTY.toString()))
-						ctrl = 1;
+						return false;
 					if (this.citadels.contains(state.getBox(i, columnFrom))
 							&& !this.citadels.contains(state.getBox(rowFrom, columnFrom))) {
-						ctrl = 1;
+						return false;
 					}
 				}
 			}
+		
 		}
-		return ctrl;
+		
+		// Se arrivo qua allora la mossa è valida
+		return true;
 	}
 
 
@@ -680,20 +622,19 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	}
 
 	@Override
-	public State getResult(State arg0, Action arg1) {	
+	public State getResult(State arg0, Action a) {	
 		
 		State state = arg0.clone();
-		Action a = arg1;
-		// funzione di aggiornamento di uno stato data una azione
+		//Creo una nuova tavola
 		State.Pawn[][] newBoard = state.getBoard();
 
-		// metto nel nuovo tabellone la pedina mossa
+		// Metto nella tavola la pedina mossa in base all'azione
 		if (state.getTurn().equalsTurn("W")) {
 			if (state.getPawn(a.getRowFrom(), a.getColumnFrom()).equalsPawn("K"))
 				newBoard[a.getRowTo()][a.getColumnTo()] = State.Pawn.KING;
 			else
 				newBoard[a.getRowTo()][a.getColumnTo()] = State.Pawn.WHITE;
-		} else /* if (state.getTurn().equalsTurn("B")) */ {
+		} else {
 			newBoard[a.getRowTo()][a.getColumnTo()] = State.Pawn.BLACK;
 		}
 
@@ -702,17 +643,17 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		else
 			newBoard[a.getRowFrom()][a.getColumnFrom()] = State.Pawn.EMPTY;
 
-		// aggiorno il tabellone
+		// Salvo la tavola aggiornata
 		state.setBoard(newBoard);
 
-		// effettuo eventuali catture
+		// Controllo se delle pedine vengono mangiate
 		if (state.getTurn().equalsTurn("B")) {
 			state = this.checkCaptureBlack(state, a);
-		} else /* if (state.getTurn().equalsTurn("W")) */ {
+		} else {
 			state = this.checkCaptureWhite(state, a);
 		}
 
-		// cambio il turno
+		// Cambio il turno
 		if (state.getTurn().equalsTurn(State.Turn.WHITE.toString()))
 			state.setTurn(State.Turn.BLACK);
 		else if (state.getTurn().equalsTurn(State.Turn.BLACK.toString()))
@@ -744,4 +685,28 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		return false;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+	public List<String> getCitadels() {
+		return citadels;
+	}
+
+	public void setCitadels(List<String> citadels) {
+		this.citadels = citadels;
+	}
 }

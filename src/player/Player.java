@@ -4,35 +4,73 @@ package player;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
 
 import aima.core.search.adversarial.AdversarialSearch;
 import aima.core.search.framework.Metrics;
 import domain.*;
 import domain.State.Turn;
+import domain.GameTablut;
 
 public class Player extends TablutClient {
 
 	// Tempo massimo per fare la ricerca (forse da ridurre un pochino per non rischiare)
-	private static final int TIME = 60;
+	public static int time;
+	public static String ip;
 	
 	// Costruttore
 	public Player(String player, String name) throws UnknownHostException, IOException {
 		super(player, name);
+		super.ipAd = ip;
 	}
 	
 	// Inizializzazione del Player
 	public static void main(String[] args){
 		
 		String role = "";
-		String name = "ChesaniCheCasa";
+		String name = "NoiRestiamoaChesa(ni)";
 		Player player = null;
 		
 		if (args.length < 1) {
 			System.out.println("Parameters error");
 			System.exit(-1);
 		} else {
-			role = (args[0]);
+			for (int i = 0; i < args.length - 1; i++) {
+
+				if (args[i].equals("-r")) {
+					i++;
+					try {
+						role = (args[i]);
+					} catch (Exception e) {
+						System.out.println("The time format is not correct!");
+						System.exit(1);
+					}
+				}
+
+				if (args[i].equals("-t")) {
+					i++;
+					try {
+						time = Integer.parseInt(args[i]);
+					} catch (Exception e) {
+						System.out.println("Time format is not correct!");
+						System.exit(1);
+					}
+				}
+
+				if (args[i].equals("-h")) {
+					i++;
+					try {
+						ip = (args[i]);
+					} catch (Exception e) {
+						System.out.println("The host format is not correct!");
+						System.exit(1);
+					}
+
+				}
+			}
 		}
+		
+		
 		if(role.isEmpty()) {
 			System.out.println("You must specify which player you are (WHITE or BLACK)");
 			System.exit(-1);
@@ -68,8 +106,8 @@ public class Player extends TablutClient {
 		System.out.println("You are player " + this.getPlayer().toString() + "!");
 		
 		
-		GameTablut game = new GameTablut(99, 0, "garbage", "fake", "fake");
-		DeepSearch search = new DeepSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, TIME -3);
+		GameTablut game = new GameTablut("garbage");
+		DeepSearch search = new DeepSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, time -3);
 		search.setLogEnabled(true);
 
 		
@@ -129,6 +167,10 @@ public class Player extends TablutClient {
 		Action action = null;
 		action = search.makeDecision(state);
 		System.out.println(action.toString());
+		
+		game.loggGame.setLevel(Level.FINE);
+		game.loggGame.fine(action.toString());
+		
 		printStatistics(search);
 		
 		try {
