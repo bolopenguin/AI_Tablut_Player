@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 
-import aima.core.search.adversarial.AdversarialSearch;
 import aima.core.search.framework.Metrics;
 import domain.*;
 import domain.State.Turn;
@@ -171,7 +170,15 @@ public class Player extends TablutClient {
 		game.loggGame.setLevel(Level.FINE);
 		game.loggGame.fine(action.toString());
 		
-		printStatistics(search);
+		// Stampo le statistiche della ricerca
+		Metrics metrics = search.getMetrics();
+		for (String key : metrics.keySet()) {
+			String value = metrics.get(key);
+			System.out.println("["+key+"]:"+value);
+			game.loggGame.setLevel(Level.FINE);
+			game.loggGame.fine("["+key+"]:"+value);
+		}
+		
 		
 		try {
 			this.write(action);
@@ -186,13 +193,6 @@ public class Player extends TablutClient {
 		}
 	}
 	
-	private void printStatistics (AdversarialSearch<State, Action> algorithm) {
-		Metrics metrics = algorithm.getMetrics();
-		for (String key : metrics.keySet()) {
-			String value = metrics.get(key);
-			System.out.println("["+key+"]:"+value);
-		}
-	}
 }
 
 
