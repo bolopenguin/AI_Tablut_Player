@@ -52,8 +52,8 @@ public class WhiteStrategy extends StrategyUtils{
 		switch(kingDistance) {
 			case 0: ratioStrategy = this.castleStrategy(); break; 	//King nel castello
 			case 1: ratioStrategy = this.castleStrategy(); break; 	//King a distanza 1
-			case 2: ratioStrategy = this.countFreeWays()/4; break; 	//King a distanza 2
-			case 3: ratioStrategy = this.countFreeWays()/4; break; 	//King a distanza 3
+			case 2: ratioStrategy = this.castleStrategy(); break; 	//King a distanza 2
+			case 3: ratioStrategy = this.castleStrategy(); break; 	//King a distanza 3
 			case 4: ratioStrategy = Double.POSITIVE_INFINITY; 		//Vinto
 			default: ratioStrategy = 0.0; break;
 		}

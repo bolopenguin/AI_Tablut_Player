@@ -18,16 +18,15 @@ public class Player extends TablutClient {
 	public static String ip;
 	
 	// Costruttore
-	public Player(String player, String name) throws UnknownHostException, IOException {
-		super(player, name);
-		super.ipAd = ip;
+	public Player(String role, String name, String ip) throws UnknownHostException, IOException {
+		super(role, name, ip);
 	}
 	
 	// Inizializzazione del Player
 	public static void main(String[] args){
 		
 		String role = "";
-		String name = "NoiRestiamoaChesa(ni)";
+		String name = "NoiRestiamoAChesa(ni)";
 		Player player = null;
 		
 		if (args.length < 1) {
@@ -47,7 +46,7 @@ public class Player extends TablutClient {
 		System.out.println("Selected client: " + role);
 
 		try {
-			player = new Player(role, name);
+			player = new Player(role, name, ip);
 		} catch (IOException e) {
 			System.err.println("Errore: non riesco a raggiungere il server");
 			System.exit(-1);
@@ -77,7 +76,7 @@ public class Player extends TablutClient {
 		
 		GameTablut game = new GameTablut("garbage");
 		DeepSearch search = new DeepSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, time -3);
-		search.setLogEnabled(true);
+		//search.setLogEnabled(true);
 
 		
 		while (true) {

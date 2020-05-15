@@ -54,6 +54,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
 		this.loggGame = Logger.getLogger("GameLog");
 		loggGame.addHandler(this.fh);
 		this.fh.setFormatter(new SimpleFormatter());
