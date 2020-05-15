@@ -19,10 +19,12 @@ import strategy.*;
 
 public class GameTablut implements Game, aima.core.search.adversarial.Game<State, Action, State.Turn> {
 
+	/*
 	private String gameLogName;
 	public  File gameLog;
 	private FileHandler fh;
 	public Logger loggGame;
+	*/
 	
 	private List<String> citadels;
 
@@ -34,6 +36,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	private GameTablut(State state, String logs_folder) {
 		super();
 
+		/*
 		Path p = Paths.get(logs_folder + File.separator + new Date().getTime() + "_gameLog.txt");
 		p = p.toAbsolutePath();
 		this.gameLogName = p.toString();
@@ -56,6 +59,9 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		this.fh.setFormatter(new SimpleFormatter());
 		loggGame.setLevel(Level.FINE);
 		loggGame.fine("Inizio partita");
+		
+		*/
+		
 		this.citadels = new ArrayList<String>();
 		
 		this.citadels.add("a4");
@@ -80,7 +86,8 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	
 	
 	
-	private State checkCaptureWhite(State state, Action a) {
+	
+	private State checkCaptureWhitePawnRight(State state, Action a) {
 		// controllo se mangio a destra
 		if (a.getColumnTo() < state.getBoard().length - 2
 				&& state.getPawn(a.getRowTo(), a.getColumnTo() + 1).equalsPawn("B")
@@ -94,6 +101,11 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 								&& !(a.getColumnTo() + 2 == 0 && a.getRowTo() == 4)))) {
 			state.removePawn(a.getRowTo(), a.getColumnTo() + 1);
 		}
+		return state;
+	}
+	
+	private State checkCaptureWhitePawnLeft(State state, Action a) {
+
 		// controllo se mangio a sinistra
 		if (a.getColumnTo() > 1 && state.getPawn(a.getRowTo(), a.getColumnTo() - 1).equalsPawn("B")
 				&& (state.getPawn(a.getRowTo(), a.getColumnTo() - 2).equalsPawn("W")
@@ -106,6 +118,11 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 								&& !(a.getColumnTo() - 2 == 0 && a.getRowTo() == 4)))) {
 			state.removePawn(a.getRowTo(), a.getColumnTo() - 1);
 		}
+		return state;
+	}
+	
+	private State checkCaptureWhitePawnUp(State state, Action a) {
+		
 		// controllo se mangio sopra
 		if (a.getRowTo() > 1 && state.getPawn(a.getRowTo() - 1, a.getColumnTo()).equalsPawn("B")
 				&& (state.getPawn(a.getRowTo() - 2, a.getColumnTo()).equalsPawn("W")
@@ -118,6 +135,10 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 								&& !(a.getColumnTo() == 0 && a.getRowTo() - 2 == 4)))) {
 			state.removePawn(a.getRowTo() - 1, a.getColumnTo());
 		}
+		return state;
+	}
+	
+	private State checkCaptureWhitePawnDown(State state, Action a) {
 		// controllo se mangio sotto
 		if (a.getRowTo() < state.getBoard().length - 2
 				&& state.getPawn(a.getRowTo() + 1, a.getColumnTo()).equalsPawn("B")
@@ -131,6 +152,10 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 								&& !(a.getColumnTo() == 0 && a.getRowTo() + 2 == 4)))) {
 			state.removePawn(a.getRowTo() + 1, a.getColumnTo());
 		}
+		return state;
+	}
+	
+	private State checkWhiteWin(State state, Action a) {
 		// controllo se ho vinto
 		if (a.getRowTo() == 0 || a.getRowTo() == state.getBoard().length - 1 || a.getColumnTo() == 0
 				|| a.getColumnTo() == state.getBoard().length - 1) {
@@ -138,12 +163,28 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 				state.setTurn(State.Turn.WHITEWIN);
 			}
 		}
-		// TODO: implement the winning condition of the capture of the last
-		// black checker
+		return state;
+	}
+	
+	
+	private State checkCaptureWhite(State state, Action a) {
+
+		this.checkCaptureWhitePawnRight(state, a);
+		this.checkCaptureWhitePawnLeft(state, a);
+		this.checkCaptureWhitePawnUp(state, a);
+		this.checkCaptureWhitePawnDown(state, a);
+		this.checkWhiteWin(state, a);
 
 		return state;
 	}
 
+	
+	
+	
+	
+	
+	
+	
 	private State checkCaptureBlackKingLeft(State state, Action a) {
 		// ho il re sulla sinistra
 		if (a.getColumnTo() > 1 && state.getPawn(a.getRowTo(), a.getColumnTo() - 1).equalsPawn("K")) {
@@ -383,15 +424,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	
 
 	
-	
-	
-	
-	
-	
-	
-	
-
-
 	@Override
 	public List<Action> getActions(State arg0) {
 		
@@ -684,21 +716,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			return true;
 		return false;
 	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 
 
 

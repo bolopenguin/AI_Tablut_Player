@@ -55,7 +55,6 @@ public abstract class MyHeuristic {
 	}
 	
 	
-	
 	//Funzione che indica se, da quante e da quali pedine si è circondati 
 	protected int[] nearPawn(int row, int column, String pawn)
 	{
@@ -168,8 +167,7 @@ public abstract class MyHeuristic {
 			
 		return result;
 	}
-		
-		
+				
 	//Funzione che restituisce un BOOLEAN, True se la pedina è adiacente ad un campo, False altrimenti.
 	protected boolean nearCamp(int row, int column)
 	{
@@ -200,6 +198,11 @@ public abstract class MyHeuristic {
 		{
 			other = "B";
 		}
+		if((row >= 9 || column >= 9) || (row < 0 || column < 0)) 
+		{
+			return result;
+		}
+		
 		
 		if(direction == left)
 		{   
@@ -258,6 +261,12 @@ public abstract class MyHeuristic {
 			other = "B";
 		}
 				
+		if((row >= 9 || column >= 9) || (row < 0 || column < 0)) 
+		{
+			return result;
+		}
+		
+		
 		if(direction == up)
 		{
 			if(row >= 1)
@@ -300,63 +309,92 @@ public abstract class MyHeuristic {
                        //Result sarà 0 se non si incontrano pedine, -1 se del colore opposto
 	}
 		
-		
-		/*
-		//FUNZIONI PER RENDERE eatKing più scalabile
-		//Funzione che indica se è possibile mangiare DA SOPRA ( Sopra - Sinistra - Destra )
-		protected boolean eatUp(int row, int column, String pawn)
+	//Funzione che indica se è possibile mangiare DA SOPRA ( Sopra - Sinistra - Destra )
+	protected boolean eatUp(int row, int column, String pawn)
+	{
+		if((row >= 9 || column >= 9) || (row < 0 || column < 0))
 		{
-			if((busyColumnPawn(up, row, column, pawn) == 1) || (busyRowPawn(left, row-1, column, pawn) == 1) || (busyRowPawn(right, row-1, column, pawn) == 1))
-	  		{
-	  			return true;
-	  		}
-	  		else
-	  		{
-	  			return false;
-	  		}
+			return false;
 		}
 		
-		//Funzione che indica se è possibile mangiare DA SOTTO ( Sotto - Sinistra - Destra )
-		protected boolean eatDown(int row, int column, String pawn)
+		if((busyColumnPawn(up, row, column, pawn) == 1) || (busyRowPawn(left, row-1, column, pawn) == 1) || (busyRowPawn(right, row-1, column, pawn) == 1))
+	 	{
+	  		return true;
+	  	}
+	  	else
+	  	{
+	  		return false;
+	  	}
+	}
+		
+	//Funzione che indica se è possibile mangiare DA SOTTO ( Sotto - Sinistra - Destra )
+	protected boolean eatDown(int row, int column, String pawn)
+	{
+		if((row >= 9 || column >= 9) || (row < 0 || column < 0))
 		{
-			if((busyColumnPawn(down, row, column, pawn) == 1) || (busyRowPawn(left, row+1, column, pawn) == 1) || (busyRowPawn(right, row+1, column, pawn) == 1))
-	  		{
-	  			return true;
-	  		}
-	  		else
-	  		{
-	  			return false;
-	  		}
+			return false;
 		}
 		
-		//Funzione che indica se è possibile mangiare DA SINISTRA ( Sinistra - Sopra - Sotto )
-		protected boolean eatLeft(int row, int column, String pawn)
+		if((busyColumnPawn(down, row, column, pawn) == 1) || (busyRowPawn(left, row+1, column, pawn) == 1) || (busyRowPawn(right, row+1, column, pawn) == 1))
+	 	{
+	 		return true;
+	 	}
+	  	else
+	  	{
+	  		return false;
+	  	}
+	}
+		
+	//Funzione che indica se è possibile mangiare DA SINISTRA ( Sinistra - Sopra - Sotto )
+	protected boolean eatLeft(int row, int column, String pawn)
+	{
+		if((row >= 9 || column >= 9) || (row < 0 || column < 0))
 		{
-			if((busyRowPawn(left, row, column, pawn) == 1) || (busyColumnPawn(up, row, column-1, pawn) == 1) || (busyColumnPawn(down, row, column-1, pawn) == 1))
-	  		{
-	  			return true;
-	  		}
-	  		else
-	  		{
-	  			return false;
-	  		}
+			return false;
 		}
+		
+		if((busyRowPawn(left, row, column, pawn) == 1) || (busyColumnPawn(up, row, column-1, pawn) == 1) || (busyColumnPawn(down, row, column-1, pawn) == 1))
+	  	{
+	  		return true;
+	 	}
+	 	else
+	 	{
+	 		return false;
+	 	}
+	}
 			
-		//Funzione che indica se è possibile mangiare DA DESTRA ( Destra - Sopra - Sotto  )
-		protected boolean eatRight(int row, int column, String pawn)
+	//Funzione che indica se è possibile mangiare DA DESTRA ( Destra - Sopra - Sotto  )
+	protected boolean eatRight(int row, int column, String pawn)
+	{
+		if((row >= 9 || column >= 9) || (row < 0 || column < 0)) 
 		{
-			if((busyRowPawn(right, row, column, pawn) == 1) || (busyColumnPawn(up, row, column+1, pawn) == 1) || (busyColumnPawn(down, row, column+1, pawn) == 1))
-	  		{
-	  			return true;
-	  		}
-	  		else
-	  		{
-	  			return false;
-	  		}
+			return false;
 		}
-			
-		*/
-			
 		
+		if((busyRowPawn(right, row, column, pawn) == 1) || (busyColumnPawn(up, row, column+1, pawn) == 1) || (busyColumnPawn(down, row, column+1, pawn) == 1))
+	  	{
+	  		return true;
+	  	}
+	  	else
+	  	{
+	  		return false;
+	 	}
+	}
+	
+	//Funzione che verifica che una pedina non sia adiacente al Re
+	protected boolean kingNotNear(int row, int column)
+	{
+		boolean result = true;
+		if((this.king[0] == row+1 || this.king[0] == row-1) && (this.king[1] == column))
+		{
+			result = false;
+		}
+		else if((this.king[0] == row) && (this.king[1] == column+1 || this.king[1] == column-1))
+		{
+			result = false;
+		}
+		return result;
+	}
+				
 	public abstract double getEvaluation();
 }

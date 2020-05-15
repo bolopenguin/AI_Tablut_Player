@@ -34,39 +34,9 @@ public class Player extends TablutClient {
 			System.out.println("Parameters error");
 			System.exit(-1);
 		} else {
-			for (int i = 0; i < args.length - 1; i++) {
-
-				if (args[i].equals("-r")) {
-					i++;
-					try {
-						role = (args[i]);
-					} catch (Exception e) {
-						System.out.println("The time format is not correct!");
-						System.exit(1);
-					}
-				}
-
-				if (args[i].equals("-t")) {
-					i++;
-					try {
-						time = Integer.parseInt(args[i]);
-					} catch (Exception e) {
-						System.out.println("Time format is not correct!");
-						System.exit(1);
-					}
-				}
-
-				if (args[i].equals("-h")) {
-					i++;
-					try {
-						ip = (args[i]);
-					} catch (Exception e) {
-						System.out.println("The host format is not correct!");
-						System.exit(1);
-					}
-
-				}
-			}
+			role = (args[0]);
+			time = Integer.parseInt(args[1]);
+			ip = (args[2]);
 		}
 		
 		
@@ -167,8 +137,10 @@ public class Player extends TablutClient {
 		action = search.makeDecision(state);
 		System.out.println(action.toString());
 		
+		/*
 		game.loggGame.setLevel(Level.FINE);
 		game.loggGame.fine(action.toString());
+		
 		
 		// Stampo le statistiche della ricerca
 		Metrics metrics = search.getMetrics();
@@ -178,8 +150,9 @@ public class Player extends TablutClient {
 			game.loggGame.setLevel(Level.FINE);
 			game.loggGame.fine("["+key+"]:"+value);
 		}
+		*/
 		
-		
+		// Effettuo la mossa scelta
 		try {
 			this.write(action);
 		} catch (ClassNotFoundException e) {
