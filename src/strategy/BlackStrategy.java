@@ -2,13 +2,13 @@ package strategy;
 
 import domain.State;
 
-public class MyBlackHeuristic extends MyHeuristic
+public class BlackStrategy extends StrategyUtils
 {
 
 	protected int rowK = this.king[0];    //Riga in cui � posizionato il Re
 	protected int columnK = this.king[1]; //Colonna in cui � posizionato il Re
 
-	public MyBlackHeuristic(State state) 
+	public BlackStrategy(State state) 
 	{
 		super(state);
 	}
@@ -27,8 +27,8 @@ public class MyBlackHeuristic extends MyHeuristic
 		double ratioEatMe;         //Verifica se c'� la possibilit� di essere mangiati
 		
 		//Conteggio Pedine
-		ratioWhite = this.white.size() / MyHeuristic.TOTWHITE;  
-		ratioBlack = this.black.size() / MyHeuristic.TOTBLACK;
+		ratioWhite = this.white.size() / StrategyUtils.TOTWHITE;  
+		ratioBlack = this.black.size() / StrategyUtils.TOTBLACK;
 
 		//Calcolo Distanza dal goal
 		double distanceGoal = this.eatKing(); 

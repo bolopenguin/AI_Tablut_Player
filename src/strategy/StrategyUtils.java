@@ -5,7 +5,7 @@ import java.util.List;
 
 import domain.State;
 
-public abstract class MyHeuristic {
+public abstract class StrategyUtils {
 	
 	protected static final double TOTWHITE = 9.0;
 	protected static final double TOTBLACK = 16.0;
@@ -19,7 +19,7 @@ public abstract class MyHeuristic {
 	protected List<int[]> black; 	      // posizione dei neri
 	protected State state;			      // stato attuale del gioco
 	
-	protected MyHeuristic(State state) 
+	protected StrategyUtils(State state) 
 	{
 		this.king = new int[2];
 		this.white = new ArrayList<int[]>();

@@ -2,9 +2,9 @@ package strategy;
 
 import domain.State;
 
-public class MyWhiteHeuristic extends MyHeuristic{
+public class WhiteStrategy extends StrategyUtils{
 
-	public MyWhiteHeuristic(State state) {
+	public WhiteStrategy(State state) {
 		super(state);
 		// TODO Auto-generated constructor stub
 	}

@@ -703,10 +703,10 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 				|| (turn.equalsTurn("W") && state.getTurn().equalsTurn("BW")))
 			return Double.NEGATIVE_INFINITY;
 		
-		MyHeuristic a = null;
+		StrategyUtils a = null;
 		if (turn.equalsTurn("W"))
-			a = new MyWhiteHeuristic(state);
-		else a = new MyBlackHeuristic(state);
+			a = new WhiteStrategy(state);
+		else a = new BlackStrategy(state);
 		return a.getEvaluation();
 	}
 
