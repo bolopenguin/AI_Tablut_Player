@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.security.InvalidParameterException;
 
-/**
- * this class represents an action of a player
- * 
- * @author A.Piretti
- * 
- */
+
 public class Action implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -34,7 +34,7 @@ public class Player extends TablutClient {
 			System.exit(-1);
 		} else {
 			role = (args[0]);
-			time = Integer.parseInt(args[1]);
+			time = Integer.parseInt(args[1]) -3;
 			ip = (args[2]);
 		}
 		
@@ -75,7 +75,7 @@ public class Player extends TablutClient {
 		
 		
 		GameTablut game = new GameTablut("garbage");
-		DeepSearch search = new DeepSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, time -3);
+		DeepSearch search = new DeepSearch(game, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, time);
 		//search.setLogEnabled(true);
 
 		

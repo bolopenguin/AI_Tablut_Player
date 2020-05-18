@@ -18,7 +18,6 @@ import strategy.*;
 
 
 public class GameTablut implements Game, aima.core.search.adversarial.Game<State, Action, State.Turn> {
-
 	/*
 	private String gameLogName;
 	public  File gameLog;
@@ -28,7 +27,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	
 	private List<String> citadels;
 
-	
 	public GameTablut(String logs_folder) {
 		this(new StateTablut(), logs_folder);
 	}
@@ -83,11 +81,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 		this.citadels.add("e8");
 	}
 
-	
-	
-	
-	
-	
 	private State checkCaptureWhitePawnRight(State state, Action a) {
 		// controllo se mangio a destra
 		if (a.getColumnTo() < state.getBoard().length - 2
@@ -106,7 +99,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	}
 	
 	private State checkCaptureWhitePawnLeft(State state, Action a) {
-
 		// controllo se mangio a sinistra
 		if (a.getColumnTo() > 1 && state.getPawn(a.getRowTo(), a.getColumnTo() - 1).equalsPawn("B")
 				&& (state.getPawn(a.getRowTo(), a.getColumnTo() - 2).equalsPawn("W")
@@ -123,7 +115,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 	}
 	
 	private State checkCaptureWhitePawnUp(State state, Action a) {
-		
 		// controllo se mangio sopra
 		if (a.getRowTo() > 1 && state.getPawn(a.getRowTo() - 1, a.getColumnTo()).equalsPawn("B")
 				&& (state.getPawn(a.getRowTo() - 2, a.getColumnTo()).equalsPawn("W")
@@ -178,9 +169,6 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 
 		return state;
 	}
-
-	
-	
 	
 	
 	
@@ -426,9 +414,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 
 	
 	@Override
-	public List<Action> getActions(State arg0) {
-		
-		State state = arg0;
+	public List<Action> getActions(State state) {
 		
 		// Liste per tenere il conto dei bianchi e dei neri, e delle loro posizioni
 		List<int[]> white = new ArrayList<int[]>();
@@ -483,7 +469,7 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 
 		String fromString = null;
 		String toString = null;
-		boolean ctrl;
+		boolean valid;
 
 		// Finché ci pedine nell'iteratore eseguo il ciclo
 		while (it.hasNext()) {
@@ -494,12 +480,12 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			// Trovo tutte le azioni possibili tenendo la riga fissa e spostando sulle colonne
 			for (int j = 0; j < state.getBoard().length; j++) {
 
-				ctrl = true;
+				valid = true;
 				// se vale false significa che la mossa non è valida e non va salvata
-				ctrl = checkMove(colonna, j, riga, riga, state);
+				valid = checkMove(colonna, j, riga, riga, state);
 
 				// se vale true invece la mossa è valida e la salvo nella lista di azioni
-				if (ctrl) {
+				if (valid) {
 
 					char colNew = (char) j;
 					char colNewConverted = (char) Character.toLowerCase(colNew + 97);
@@ -523,10 +509,10 @@ public class GameTablut implements Game, aima.core.search.adversarial.Game<State
 			// Come sopra ma questa volta tengo la colonna fissa e muovo la riga
 			for (int i = 0; i < state.getBoard().length; i++) {
 
-				ctrl = true;
-				ctrl = checkMove(colonna, colonna, riga, i, state);
+				valid = true;
+				valid = checkMove(colonna, colonna, riga, i, state);
 
-				if (ctrl) {
+				if (valid) {
 
 					char col = (char) colonna;
 					char colConverted = (char) Character.toLowerCase(col + 97);
