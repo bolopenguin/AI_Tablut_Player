@@ -23,9 +23,9 @@ To run the player from the **Virtual Machine**, we have to open a command prompt
 ```
 cd /tablut
 ./runmyplayer <role> <time> <ip>
-<role> va sostituito con "white" o "black" (non è case sensitive) ed indica il ruolo del player
-<time> va sostituito con un intero positivo che indica il tempo massimo di scelta per il player
-<ip> va sostituito con l'indirizzo ip della macchina sulla quale si trova il server
+<role> "white" or "black" 
+<time> time in secods (60 recommended)
+<ip> ip of the machine where the server has been started
 ```
 
 # Authors 
